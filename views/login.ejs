@@ -11,13 +11,14 @@
     </h1>
     <p>Enter your data carefully</p>
     <div>
-        <form>
+        <form action="/user/login" method="post">
             <label>Email</label>
-            <input type="text" required Email="email"/>
+            <input type="text" required name="email"/>
             <label>Password</label>
-            <input type="text" required Password="password"/>
+            <input type="text" required name="password"/>
+            <button type="submit">Login </button>
         </form>
-        <button type="submit">Login </button>
+        
     </div>
     
 </body>

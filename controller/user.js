@@ -1,48 +1,29 @@
+const { v4: uuidv4 } = require('uuid');
+const {setUser, } = require("../services/auth")
+
 const User = require("../model/user")
 
-async function handleGetAllUsers(req, res) {
-    const allDbUsers = await User.find({});
-    return res.json(allDbUsers);
-}
-
-async function handleGetUserById(req, res) {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: "User not found" })
-    return res.json(user);
-}
-
-async function handleUpdateById(req, res) {
-    await User.findByIdAndUpdate(req.params.id, { lastName: "Changed" });
-    return res.json({ status: "Success" });
-}
-
-async function handleDeleteUserById(req, res) {
-    await User.findByIdAndDelete(req.params.id);
-    return res.json({ status: "Success" });
-}
-
-async function handleCreateNewUser(req, res) {
-    const body = req.body;
-    if (
-        !body ||
-        !body.firstName ||
-        !body.lastName ||
-        !body.email ||
-        !body.gender ||
-        !body.jobTitle
-     ) {
-        return res.status(400).json( {msg: "All fields are require..."})
-    }
-
-    const result = await User.create({
-        firstName: body.firstName,
-        lastName: body.lastName,
-        email: body.email,
-        gender: body.gender,
-        jobTitle: body.jobTitle,
-
+async function handleUserSignup(req, res) {
+    const {name, email, password} = req.body;
+    await User.create({
+        name, email, password,
     });
-    return res.status(201).json({ Msg: "Success", id: result.id })
+    return res.redirect("/")
+
 }
 
-module.exports = { handleGetAllUsers, handleGetUserById, handleUpdateById, handleDeleteUserById, handleCreateNewUser }
+async function handleUserLogin(req, res) {
+    const {email, password} = req.body;
+    const user = await User.findOne({email, password})
+
+    if (!user) return res.render("login",{
+        error : "email or password wrong"
+    })
+    const sessionId = uuidv4();
+    setUser(sessionId, user);
+    res.cookie("uid", sessionId)
+    return res.redirect("/")
+
+}
+
+module.exports = { handleUserSignup, handleUserLogin }

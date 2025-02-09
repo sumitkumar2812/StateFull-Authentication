@@ -1,13 +1,20 @@
-const fs = require("fs");
-function logReqRes(filename) {
-  return (req, res, next) => {
-    console.log("Middleware 1 is runnning");
-    fs.appendFile(filename, `\n${Date.now()}:${req.ip}\n`, (err, data) => {
-      next();
-    });
-  };
+const {getUser} = require("../services/auth");
+
+
+function ristrictLoggedInUser(req, res, next) {
+  const userUid = req.cookies?.uid;
+
+  if(!userUid) return res.redirect("/login");
+
+  const user = getUser(userUid)
+  console.log(user)
+  if(!user) return res.redirect("/login")
+
+  req.user = user  
+  next()
+
 }
 module.exports = {
-  logReqRes,
+  ristrictLoggedInUser,
 };
 

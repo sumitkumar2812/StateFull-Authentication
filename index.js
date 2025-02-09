@@ -1,12 +1,14 @@
 const express = require("express");
-const fs = require("fs");
 const userRouter = require("./routes/user.js");
 const urlRouter = require("./routes/url.js");
 const URL = require("./model/url.js")
 const staticRouter = require("./routes/staticRouter.js")
 
+const cookieParser = require("cookie-parser");
+
+
 const { connectMongoDb } = require("./connection.js");
-const { logReqRes } = require("./middleware/index");
+const { ristrictLoggedInUser } = require("./middleware/index");
 const path = require("path");
 //const { timeStamp } = require("console");
 
@@ -20,15 +22,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-connectMongoDb("mongodb://127.0.0.1:27017/urlDatabase").then(() =>
+app.use(cookieParser());
+
+connectMongoDb("mongodb://127.0.0.1:27017/piyushgarg-youtube-practice").then(() =>
   console.log("MongoDb Connected...")
 );
 
-app.use(logReqRes("logupdate.txt"));
+app.use("/url", ristrictLoggedInUser, urlRouter); // Now you can use app
+app.use("/user", userRouter); // Now you can use app
 
-app.use("/api/user", userRouter); // Now you can use app
 
-app.use("/url", urlRouter); // Now you can use app
 
 app.get("/url/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
