@@ -8,7 +8,7 @@ const cookieParser = require("cookie-parser");
 
 
 const { connectMongoDb } = require("./connection.js");
-const { ristrictLoggedInUser } = require("./middleware/index");
+const { checkForAuthentication, ristrictTo } = require("./middleware/index");
 const path = require("path");
 //const { timeStamp } = require("console");
 
@@ -28,8 +28,9 @@ connectMongoDb("mongodb://127.0.0.1:27017/piyushgarg-youtube-practice").then(() 
   console.log("MongoDb Connected...")
 );
 
-app.use("/url", ristrictLoggedInUser, urlRouter); // Now you can use app
+app.use("/url", ristrictTo(["NORMAL"]), urlRouter); // Now you can use app
 app.use("/user", userRouter); // Now you can use app
+app.use(checkForAuthentication)
 
 
 
